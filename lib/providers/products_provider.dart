@@ -56,9 +56,6 @@ class ProductsProvider with ChangeNotifier {
   void toggleIsFavourite(String id) {
     _items.firstWhere((element) => element.id == id).isFavourite =
         !(_items.firstWhere((element) => element.id == id).isFavourite);
-
-    print(_items.firstWhere((element) => element.id == id).isFavourite);
-
     notifyListeners();
   }
 }

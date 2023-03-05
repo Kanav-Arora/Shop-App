@@ -6,12 +6,14 @@ class CartItem {
   final String title;
   final int quantity;
   final double price;
+  final String imageUrl;
 
   CartItem({
     @required this.id,
     @required this.title,
     @required this.quantity,
     @required this.price,
+    @required this.imageUrl,
   });
 }
 
@@ -22,7 +24,7 @@ class CartProvider with ChangeNotifier {
     return {..._items};
   }
 
-  void addItem(String id, double price, String title) {
+  void addItem(String id, double price, String title, String imageUrl) {
     if (_items.containsKey(id))
       _items.update(
           id,
@@ -30,7 +32,8 @@ class CartProvider with ChangeNotifier {
               id: value.id,
               title: value.title,
               quantity: value.quantity + 1,
-              price: value.price));
+              price: value.price,
+              imageUrl: value.imageUrl));
     else {
       _items.putIfAbsent(
         id,
@@ -39,13 +42,27 @@ class CartProvider with ChangeNotifier {
           title: title,
           quantity: 1,
           price: price,
+          imageUrl: imageUrl,
         ),
       );
     }
     notifyListeners();
   }
 
+  void remove(String id) {
+    _items.removeWhere((key, value) => value.id == id);
+    notifyListeners();
+  }
+
   int get itemCount {
     return _items.length;
+  }
+
+  double get totalAmount {
+    double val = 0.0;
+    _items.forEach((key, value) {
+      val += (value.price * value.quantity);
+    });
+    return val;
   }
 }

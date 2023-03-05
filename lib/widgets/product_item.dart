@@ -50,14 +50,18 @@ class ProductItem extends StatelessWidget {
             p.title,
             textAlign: TextAlign.center,
           ),
-          trailing: IconButton(
-            icon: Icon(
-              Icons.shopping_cart,
-              color: Theme.of(context).iconTheme.color,
+          trailing: Consumer<CartProvider>(
+            builder: (ctx, value, _) => IconButton(
+              icon: Icon(
+                cartData.items.containsKey(id) == true
+                    ? Icons.shopping_cart
+                    : Icons.shopping_cart_checkout_outlined,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              onPressed: () {
+                cartData.addItem(p.id, p.price, p.title, p.imageUrl);
+              },
             ),
-            onPressed: () {
-              cartData.addItem(p.id, p.price, p.title);
-            },
           ),
         ),
       ),
