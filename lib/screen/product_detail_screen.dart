@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:shop_app/providers/cart_provider.dart';
 import '../providers/products_provider.dart';
 import '../models/product.dart';
+import '../widgets/badge.dart';
+import 'cart_screen.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   static const String routeName = "ProductDetailScreen";
@@ -14,7 +16,25 @@ class ProductDetailScreen extends StatelessWidget {
     final cartData = Provider.of<CartProvider>(context, listen: false);
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(title: Text(loadedProduct.title)),
+      appBar: AppBar(
+        title: Text(loadedProduct.title),
+        actions: <Widget>[
+          Consumer<CartProvider>(
+            builder: (ctx, data, ch) {
+              return Badge(
+                child: ch,
+                value: data.itemCount.toString(),
+              );
+            },
+            child: IconButton(
+              icon: Icon(Icons.shopping_cart),
+              onPressed: () {
+                Navigator.of(context).pushNamed(CartScreen.routeName);
+              },
+            ),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
