@@ -65,4 +65,9 @@ class CartProvider with ChangeNotifier {
     });
     return val;
   }
+
+  void clear() {
+    _items = {};
+    notifyListeners();
+  }
 }
