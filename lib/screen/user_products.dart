@@ -5,7 +5,7 @@ import 'package:shop_app/screen/add_product_screen.dart';
 import 'package:shop_app/screen/app_drawer.dart';
 import 'package:provider/provider.dart';
 
-Widget userProductListItem(Product obj) {
+Widget userProductListItem(BuildContext context, Product obj) {
   return ListTile(
     title: Text(obj.title),
     leading: CircleAvatar(
@@ -14,7 +14,10 @@ Widget userProductListItem(Product obj) {
     )),
     trailing: IconButton(
       icon: Icon(Icons.edit),
-      onPressed: () {},
+      onPressed: () {
+        Navigator.of(context)
+            .pushNamed(AddProductScreen.routeName, arguments: obj.id);
+      },
     ),
   );
 }
@@ -45,7 +48,7 @@ class UserProducts extends StatelessWidget {
                 productData.removeByIndex(index);
               },
               background: Container(color: Colors.redAccent),
-              child: userProductListItem(p));
+              child: userProductListItem(context, p));
         },
         itemCount: productData.items.length,
       ),

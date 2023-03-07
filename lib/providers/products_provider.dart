@@ -70,4 +70,16 @@ class ProductsProvider with ChangeNotifier {
         !(_items.firstWhere((element) => element.id == id).isFavourite);
     notifyListeners();
   }
+
+  void updateProduct(String id, Product p) {
+    var prodIndex = _items.indexWhere((element) => element.id == id);
+    _items[prodIndex] = Product(
+        id: p.id,
+        title: p.title,
+        description: p.description,
+        price: p.price,
+        imageUrl: p.imageUrl,
+        isFavourite: p.isFavourite);
+    notifyListeners();
+  }
 }

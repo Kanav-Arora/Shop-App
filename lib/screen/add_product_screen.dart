@@ -23,6 +23,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
     price: 0,
     imageUrl: '',
   );
+
+  var _initDone = true;
+
+  var _initValue = {
+    'title': '',
+    'description': '',
+    'price': '',
+    'imageUrl': '',
+  };
+
   @override
   void initState() {
     // TODO: implement initState
@@ -33,6 +43,31 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return;
     });
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    if (_initDone) {
+      final fetchedId = ModalRoute.of(context).settings.arguments as String;
+
+      if (fetchedId != null) {
+        _editedProduct = Provider.of<ProductsProvider>(context, listen: false)
+            .items
+            .firstWhere((element) => element.id == fetchedId) as Product;
+
+        _initValue = {
+          'title': _editedProduct.title,
+          'description': _editedProduct.description,
+          'price': _editedProduct.price.toString(),
+          'imageUrl': '',
+        };
+      }
+      _imageUrlController.text = _editedProduct.imageUrl;
+    }
+
+    _initDone = false;
+    super.didChangeDependencies();
   }
 
   @override
@@ -48,8 +83,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final isValid = _form.currentState.validate();
     if (!isValid) return;
     _form.currentState.save();
-    Provider.of<ProductsProvider>(context, listen: false)
-        .addProduct(_editedProduct);
+    if (_editedProduct.id != null) {
+      Provider.of<ProductsProvider>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+    } else {
+      Provider.of<ProductsProvider>(context, listen: false)
+          .addProduct(_editedProduct);
+    }
     Navigator.of(context).pop();
   }
 
@@ -93,6 +133,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             child: ListView(
               children: [
                 TextFormField(
+                  initialValue: _initValue['title'],
                   validator: (value) {
                     return value.isEmpty == true ? 'Empty' : null;
                   },
@@ -109,10 +150,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         title: newValue,
                         description: _editedProduct.description,
                         price: _editedProduct.price,
-                        imageUrl: _editedProduct.imageUrl);
+                        imageUrl: _editedProduct.imageUrl,
+                        isFavourite: _editedProduct.isFavourite);
                   },
                 ),
                 TextFormField(
+                  initialValue: _initValue['price'],
                   validator: (value) {
                     return value.isEmpty == true ? 'Empty' : null;
                   },
@@ -131,10 +174,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         title: _editedProduct.title,
                         description: _editedProduct.description,
                         price: double.parse(newValue),
-                        imageUrl: _editedProduct.imageUrl);
+                        imageUrl: _editedProduct.imageUrl,
+                        isFavourite: _editedProduct.isFavourite);
                   },
                 ),
                 TextFormField(
+                  initialValue: _initValue['description'],
                   validator: (value) {
                     if (value.isEmpty)
                       return 'Empty';
@@ -154,7 +199,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         title: _editedProduct.title,
                         description: newValue,
                         price: _editedProduct.price,
-                        imageUrl: _editedProduct.imageUrl);
+                        imageUrl: _editedProduct.imageUrl,
+                        isFavourite: _editedProduct.isFavourite);
                   },
                 ),
                 TextFormField(
@@ -183,7 +229,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         title: _editedProduct.title,
                         description: _editedProduct.description,
                         price: _editedProduct.price,
-                        imageUrl: newValue);
+                        imageUrl: newValue,
+                        isFavourite: _editedProduct.isFavourite);
                   },
                 ),
                 validUrl
