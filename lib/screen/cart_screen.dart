@@ -37,10 +37,20 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _isLoading = false;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final cartData = Provider.of<CartProvider>(context);
     final orderData = Provider.of<OrdersProvider>(context, listen: false);
+    final sacffMess = ScaffoldMessenger.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Your Cart'),
@@ -66,15 +76,42 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {
-                      orderData.addOrder(
-                          cartData.items.values.toList(), cartData.totalAmount);
-                      cartData.clear();
-                    },
-                    child: Text(
-                      'ORDER NOW',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
-                    ),
+                    onPressed: cartData.itemCount <= 0
+                        ? null
+                        : () async {
+                            try {
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              await orderData.addOrder(
+                                  cartData.items.values.toList(),
+                                  cartData.totalAmount);
+                              cartData.clear();
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            } catch (error) {
+                              setState(() {
+                                _isLoading = false;
+                              });
+                              sacffMess.showSnackBar(SnackBar(
+                                content: Text(
+                                  'Order Failed!',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ));
+                            }
+                          },
+                    child: _isLoading == true
+                        ? CircularProgressIndicator()
+                        : Text(
+                            'ORDER NOW',
+                            style: TextStyle(
+                                color: cartData.itemCount <= 0
+                                    ? Colors.grey
+                                    : Theme.of(context).primaryColor),
+                          ),
                   )
                 ],
               ),

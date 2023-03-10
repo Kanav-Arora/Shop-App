@@ -22,11 +22,16 @@ Widget userProductListItem(BuildContext context, Product obj) {
   );
 }
 
+Future<void> _refreshProducts(BuildContext context) async {
+  await Provider.of<ProductsProvider>(context, listen: false).fetch();
+}
+
 class UserProducts extends StatelessWidget {
   static const String routeName = 'UserProducts';
   @override
   Widget build(BuildContext context) {
     final productData = Provider.of<ProductsProvider>(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('User Products'),
@@ -39,18 +44,34 @@ class UserProducts extends StatelessWidget {
         ],
       ),
       drawer: AppDrawer(),
-      body: ListView.builder(
-        itemBuilder: (ctx, index) {
-          Product p = productData.items.elementAt(index);
-          return Dismissible(
-              key: UniqueKey(),
-              onDismissed: (direction) {
-                productData.removeByIndex(index);
-              },
-              background: Container(color: Colors.redAccent),
-              child: userProductListItem(context, p));
-        },
-        itemCount: productData.items.length,
+      body: RefreshIndicator(
+        onRefresh: () => _refreshProducts(context),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView.builder(
+            itemBuilder: (ctx, index) {
+              Product p = productData.items.elementAt(index);
+              return Dismissible(
+                  key: UniqueKey(),
+                  onDismissed: (direction) async {
+                    try {
+                      await productData.removeByIndex(index);
+                    } catch (error) {
+                      scaffoldMessenger.showSnackBar(SnackBar(
+                        content: Text(
+                          'Deletion Failed!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ));
+                    }
+                  },
+                  background: Container(color: Colors.redAccent),
+                  child: userProductListItem(context, p));
+            },
+            itemCount: productData.items.length,
+          ),
+        ),
       ),
     );
   }

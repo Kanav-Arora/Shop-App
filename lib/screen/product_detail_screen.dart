@@ -11,6 +11,7 @@ class ProductDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final id = ModalRoute.of(context).settings.arguments as String;
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     Product loadedProduct =
         Provider.of<ProductsProvider>(context, listen: false).findById(id);
     final cartData = Provider.of<CartProvider>(context, listen: false);
@@ -157,8 +158,18 @@ class ProductDetailScreen extends StatelessWidget {
                   Consumer<ProductsProvider>(
                     builder: (ctx, value, ch) {
                       return OutlinedButton(
-                        onPressed: () {
-                          value.toggleIsFavourite(loadedProduct.id);
+                        onPressed: () async {
+                          try {
+                            await value.toggleIsFavourite(loadedProduct.id);
+                          } catch (error) {
+                            scaffoldMessenger.showSnackBar(SnackBar(
+                              content: Text(
+                                'Error Occurred: Unable to Favourite',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ));
+                          }
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,

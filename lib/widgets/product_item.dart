@@ -11,6 +11,7 @@ class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productsData = Provider.of<ProductsProvider>(context, listen: false);
+    final scaffMess = ScaffoldMessenger.of(context);
     final Product p = productsData.items.firstWhere(
       (element) => element.id == id,
     );
@@ -41,8 +42,18 @@ class ProductItem extends StatelessWidget {
                     : Icons.favorite_border,
                 color: Theme.of(context).iconTheme.color,
               ),
-              onPressed: () {
-                value.toggleIsFavourite(id);
+              onPressed: () async {
+                try {
+                  await value.toggleIsFavourite(id);
+                } catch (error) {
+                  scaffMess.showSnackBar(SnackBar(
+                    content: Text(
+                      'Error Occurred: Unable to Favourite',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ));
+                }
               },
             ),
           ),
